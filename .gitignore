@@ -1,0 +1,14 @@
+# ide
+
+.idea/workspace.xml
+
+.idea/modules.xml
+
+.idea/misc.xml
+
+.idea/vcs.xml
+
+# build
+
+target/
+

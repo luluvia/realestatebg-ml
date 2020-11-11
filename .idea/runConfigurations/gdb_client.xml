@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="gdb-client" type="CLion_Remote" toolchainName="MinGW" remoteCommand="127.0.0.1:2159" symbolFile="$PROJECT_DIR$/target/debug/realestatebg-ml.exe" sysroot="">
+    <method v="2">
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="build" run_configuration_type="CargoCommandRunConfiguration" />
+      <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_gdb_powershell" />
+    </method>
+  </configuration>
+</component>
