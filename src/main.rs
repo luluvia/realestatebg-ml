@@ -1,11 +1,11 @@
 use crossterm::{terminal, ExecutableCommand, QueueableCommand, cursor,
-                style::{self, Colorize}, Result,
+                style::{self, style, Color, Colorize}, Result,
                 event::{self, poll, read, Event, KeyCode, KeyEvent}};
 use std::io::{stdout, Write};
 use std::time::Duration;
 use realestatebg_ml::display::screen::Screen;
 use realestatebg_ml::display::layout::{SingleMenuLayout, GameLayout};
-use realestatebg_ml::display::writer::Writer;
+use realestatebg_ml::display::writer::{Writer, Justify};
 
 fn main() -> Result<()> {
     let mut stdout = stdout();

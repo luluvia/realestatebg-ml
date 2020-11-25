@@ -21,6 +21,8 @@ impl Area {
         }
     }
 
+    pub fn full_area(&self) -> (u16, u16, u16, u16) { (self.left, self.top, self.width, self.height) }
+
     pub fn fullscreen() -> Area {
         let (width, height) = terminal::size().unwrap();
         Area {
@@ -29,6 +31,11 @@ impl Area {
             width,
             height,
         }
+    }
+
+    pub fn get_coords_from_percent(&self, pc_width: f32, pc_height: f32) -> (u16, u16) {
+        (self.left + (self.width as f32 * pc_width).round() as u16 - 1,
+         self.top + (self.height as f32 * pc_height).round() as u16 - 1)
     }
 }
 

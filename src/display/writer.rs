@@ -7,11 +7,17 @@ pub struct Writer<'a> {
     out: Box<dyn Write + 'a>,
 }
 
+pub enum Justify {
+    LEFT,
+    CENTER,
+    RIGHT
+}
+
 impl<'a> Writer<'a> {
     pub fn new(out: Box<dyn Write + 'a>) -> Writer<'a> {
         Writer { out }
     }
-    pub fn draw_uniform_rect(&mut self, top: u16, left: u16, width: u16, height: u16,
+    pub fn draw_uniform_rect(&mut self, (left, top, width, height): (u16, u16, u16, u16),
                              char: impl Display, border_size: u8) {
         let available_frames = min((width as f32 / 2.0).ceil() as u16, (height as f32 / 2.0).ceil() as u16);
         let frames_to_fill;
@@ -31,11 +37,31 @@ impl<'a> Writer<'a> {
             self.write_char(&char, right, y);
         }
         if frames_to_fill > 1 {
-            self.draw_uniform_rect(top + 1, left + 1, width - 2, height - 2, char, (frames_to_fill - 1) as u8);
+            self.draw_uniform_rect((left + 1, top + 1, width - 2, height - 2), char, (frames_to_fill - 1) as u8);
         } else if frames_to_fill == 0 {
-            self.draw_uniform_rect(top + 1, left + 1, width - 2, height - 2, char, frames_to_fill as u8);
+            self.draw_uniform_rect((left + 1, top + 1, width - 2, height - 2), char, frames_to_fill as u8);
         }
 
+        self.out.flush();
+    }
+    pub fn write_text(&mut self, text: &str, justify: Justify, (origin_x, y): (u16, u16)) {
+        match justify {
+            Justify::LEFT => {
+                for (i, c) in text.chars().enumerate() {
+                    self.write_char(c, origin_x + i as u16, y);
+                }
+            }
+            Justify::CENTER => {
+                for (i, c) in text.chars().enumerate() {
+                    self.write_char(c, origin_x - text.len() as u16 / 2 + i as u16, y);
+                }
+            }
+            Justify::RIGHT => {
+                for (i, c) in text.chars().enumerate() {
+                    self.write_char(c, origin_x - text.len() as u16 - 1 + i as u16, y);
+                }
+            }
+        }
         self.out.flush();
     }
     pub fn write_char(&mut self, char: impl Display, x: u16, y: u16) -> crossterm::Result<()> {
