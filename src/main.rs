@@ -4,7 +4,8 @@ use crossterm::{terminal, ExecutableCommand, QueueableCommand, cursor,
 use std::io::{stdout, Write};
 use std::time::Duration;
 use realestatebg_ml::display::screen::Screen;
-use realestatebg_ml::display::layout::SingleMenuLayout;
+use realestatebg_ml::display::layout::{SingleMenuLayout, GameLayout};
+use realestatebg_ml::display::writer::Writer;
 
 fn main() -> Result<()> {
     let mut stdout = stdout();
@@ -19,11 +20,11 @@ fn main() -> Result<()> {
 
     let layout = Box::new(SingleMenuLayout { });
     let mut screen = Screen::new(layout);
+    let mut writer = Writer::new(Box::new(&stdout));
 
     loop {
-        let size = terminal::size();
-
-        stdout.flush()?;
+        let viewport = screen.areas.viewport;
+        let command = screen.areas.command.unwrap();
 
         poll_events(&mut screen);
     }

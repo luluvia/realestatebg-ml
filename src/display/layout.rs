@@ -1,12 +1,4 @@
-use termimad::Area;
-
-pub struct Areas {
-    pub viewport: Area, // not optional because we need to have a display if we are using windowed mode
-                    // and not just print mode
-    pub command: Option<Area>,
-    pub logs: Option<Area>,
-    pub status: Option<Area>,
-}
+use crate::display::area::{Area, Areas};
 
 pub trait Layout {
     fn construct(&self, view: &Area) -> (Areas, LayoutCode);

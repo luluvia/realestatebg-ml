@@ -1,7 +1,7 @@
-use termimad::Area;
 use crossterm::{cursor, Result, QueueableCommand};
 use std::io::Write;
-use crate::display::layout::{Layout, Areas, LayoutCode};
+use crate::display::layout::{Layout, LayoutCode};
+use crate::display::area::{Area, Areas};
 
 pub struct Screen {
     area: Area,
@@ -12,7 +12,7 @@ pub struct Screen {
 
 impl Screen {
     pub fn new(layout: Box<dyn Layout>) -> Screen {
-        let area = Area::full_screen();
+        let area = Area::fullscreen();
         let (areas, layout_code) = layout.construct(&area);
         Self {
             area,
