@@ -1,8 +1,9 @@
 use std::fmt::Display;
 use std::io::Write;
 use std::cmp::min;
-use crossterm::{style, cursor, QueueableCommand, ErrorKind, terminal, ExecutableCommand};
+use crossterm::{style, cursor, QueueableCommand, ErrorKind, terminal, ExecutableCommand, Result};
 use crossterm::terminal::ClearType::All;
+use crossterm::style::{StyledContent, style};
 
 pub struct Writer<'a> {
     out: Box<dyn Write + 'a>,
@@ -50,6 +51,14 @@ impl<'a> Writer<'a> {
     pub fn flush(&mut self) {
         self.out.flush();
     }
+    pub fn reset(&mut self, reset_cursor_pos: bool) -> Result<()> {
+        self.out.execute(cursor::Hide)?;
+        if reset_cursor_pos {
+            self.out.execute(cursor::MoveTo(1, 1))?;
+        }
+
+        Ok(())
+    }
     pub fn write_text(&mut self, text: &str, justify: Justify, (origin_x, y): (u16, u16)) {
         match justify {
             Justify::LEFT => {
@@ -65,6 +74,31 @@ impl<'a> Writer<'a> {
             Justify::RIGHT => {
                 for (i, c) in text.chars().enumerate() {
                     self.write_char(c, origin_x - text.len() as u16 - 1 + i as u16, y);
+                }
+            }
+        }
+    }
+    pub fn write_styled_text(&mut self, styled_text: StyledContent<&str>, justify: Justify, (origin_x, y): (u16, u16)) {
+        let text_style = *styled_text.style();
+        let text = *styled_text.content();
+        let mut start_x = origin_x;
+        if origin_x >= text.len() as u16 {
+            start_x = origin_x - text.len() as u16;
+        }
+        match justify {
+            Justify::LEFT => {
+                for (i, c) in text.chars().enumerate() {
+                    self.write_char(StyledContent::new(text_style, c), origin_x + i as u16, y);
+                }
+            }
+            Justify::CENTER => {
+                for (i, c) in text.chars().enumerate() {
+                    self.write_char(StyledContent::new(text_style, c), start_x / 2 + i as u16, y);
+                }
+            }
+            Justify::RIGHT => {
+                for (i, c) in text.chars().enumerate() {
+                    self.write_char(StyledContent::new(text_style, c), start_x - 1 + i as u16, y);
                 }
             }
         }

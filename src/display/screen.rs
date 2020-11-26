@@ -1,17 +1,17 @@
-use crossterm::{cursor, Result, QueueableCommand};
-use std::io::Write;
 use crate::display::layout::{Layout, LayoutCode};
 use crate::display::area::{Area, Areas};
+use crate::display::writer::Writer;
 
-pub struct Screen {
-    area: Area,
-    pub areas: Areas,
+pub struct Screen<'a> {
     layout: Box<dyn Layout>,
-    layout_code: LayoutCode
+    layout_code: LayoutCode,
+    pub area: Area,
+    pub areas: Areas,
+    pub writer: Writer<'a>
 }
 
-impl Screen {
-    pub fn new(layout: Box<dyn Layout>) -> Screen {
+impl<'a> Screen<'a> {
+    pub fn new(layout: Box<dyn Layout>, writer: Writer<'a>) -> Screen {
         let area = Area::fullscreen();
         let (areas, layout_code) = layout.construct(&area);
         Self {
@@ -19,6 +19,7 @@ impl Screen {
             areas,
             layout,
             layout_code,
+            writer,
         }
     }
     pub fn load_layout(&mut self, layout: Box<dyn Layout>) {
@@ -32,9 +33,6 @@ impl Screen {
         let (areas, layout_code) = self.layout.construct(&self.area);
         self.areas = areas;
         self.layout_code = layout_code;
-    }
-    pub fn clear(&self, w: &mut impl Write) -> Result<()> {
-        w.queue(cursor::MoveTo(0, 0))?;
-        Ok(())
+        self.writer.clear();
     }
 }
