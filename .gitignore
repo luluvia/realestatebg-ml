@@ -1,17 +1,7 @@
 # ide
 
-*.iml
-
-.idea/workspace.xml
-
-.idea/modules.xml
-
-.idea/misc.xml
-
-.idea/vcs.xml
+.idea/
 
 # build
 
 target/
-
-
