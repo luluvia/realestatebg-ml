@@ -1,7 +1,8 @@
 use std::fmt::Display;
 use std::io::Write;
 use std::cmp::min;
-use crossterm::{style, cursor, QueueableCommand, ErrorKind};
+use crossterm::{style, cursor, QueueableCommand, ErrorKind, terminal, ExecutableCommand};
+use crossterm::terminal::ClearType::All;
 
 pub struct Writer<'a> {
     out: Box<dyn Write + 'a>,
@@ -16,6 +17,9 @@ pub enum Justify {
 impl<'a> Writer<'a> {
     pub fn new(out: Box<dyn Write + 'a>) -> Writer<'a> {
         Writer { out }
+    }
+    pub fn clear(&mut self) {
+        self.out.execute(terminal::Clear(All));
     }
     // a border size of 0 means to fill the entire region with the rectangle.
     pub fn draw_uniform_rect(&mut self, (left, top, width, height): (u16, u16, u16, u16),
@@ -42,7 +46,8 @@ impl<'a> Writer<'a> {
         } else if frames_to_fill == 0 {
             self.draw_uniform_rect((left + 1, top + 1, width - 2, height - 2), char, frames_to_fill as u8);
         }
-
+    }
+    pub fn flush(&mut self) {
         self.out.flush();
     }
     pub fn write_text(&mut self, text: &str, justify: Justify, (origin_x, y): (u16, u16)) {
@@ -63,7 +68,6 @@ impl<'a> Writer<'a> {
                 }
             }
         }
-        self.out.flush();
     }
     pub fn write_char(&mut self, char: impl Display, x: u16, y: u16) -> crossterm::Result<()> {
         self.out

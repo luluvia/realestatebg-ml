@@ -9,35 +9,45 @@ use realestatebg_ml::display::writer::{Writer, Justify};
 use spin_sleep::LoopHelper;
 
 fn main() -> Result<()> {
-    let mut stdout = stdout();
-    stdout.execute(
-        terminal::EnterAlternateScreen
-    )?;
+    let mut stream = BufWriter::new(stdout());
+    stream.execute(terminal::EnterAlternateScreen)?;
 
     terminal::enable_raw_mode()?;
 
-    stdout.queue(cursor::Hide)?;
-    stdout.queue(cursor::MoveTo(1, 1))?;
+    stream.queue(cursor::Hide)?;
+    stream.queue(cursor::MoveTo(1, 1))?;
 
-    let layout = Box::new(SingleMenuLayout { });
+    let layout = Box::new(GameLayout { });
     let mut screen = Screen::new(layout);
-    let mut writer = Writer::new(Box::new(&stdout));
+    let mut writer = Writer::new(Box::new(&mut stream));
     let mut loop_helper = LoopHelper::builder()
         .report_interval(Duration::from_secs_f64(1f64 / 60f64))
-        .build_with_target_rate(30.0);
+        .build_with_target_rate(3.0);
+    let mut alternator = false;
 
     loop {
         let delta = loop_helper.loop_start();
         let viewport = screen.areas.viewport;
         let command = screen.areas.command.unwrap();
+        writer.clear();
+        if alternator {
+            alternator = false;
+            writer.draw_uniform_rect(viewport.full_area(), style("&").with(Color::Blue), 0);
+        } else {
+            alternator = true;
+            writer.draw_uniform_rect(viewport.full_area(), style("&").with(Color::Green), 0);
+        }
+        writer.flush();
 
-        poll_events(&mut screen);
-
-        loop_helper.loop_sleep();
         if poll_events(&mut screen).unwrap() == false {
             break;
         }
+        loop_helper.loop_sleep();
     }
+    drop(writer);
+
+    stream.execute(cursor::Show);
+    stream.execute(terminal::LeaveAlternateScreen);
 
     Ok(())
 }
