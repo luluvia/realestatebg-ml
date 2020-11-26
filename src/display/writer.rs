@@ -17,6 +17,7 @@ impl<'a> Writer<'a> {
     pub fn new(out: Box<dyn Write + 'a>) -> Writer<'a> {
         Writer { out }
     }
+    // a border size of 0 means to fill the entire region with the rectangle.
     pub fn draw_uniform_rect(&mut self, (left, top, width, height): (u16, u16, u16, u16),
                              char: impl Display, border_size: u8) {
         let available_frames = min((width as f32 / 2.0).ceil() as u16, (height as f32 / 2.0).ceil() as u16);
